@@ -275,28 +275,53 @@
     </div>
 
   </div> <div id="noResults" class="no-results">找不到符合搜尋條件的產品 / No results found.</div>
-</div> <script>
+</div>
+<script>
   function filterProducts() {
-    // 取得搜尋關鍵字並轉為大寫，實現不區分大小寫
-    const filter = document.getElementById('globalSearch').value.toUpperCase();
+    // 1. 取得搜尋關鍵字並轉為大寫，實現不區分大小寫
+    const filter = document.getElementById('globalSearch').value.toUpperCase().trim();
     const rows = document.getElementsByClassName('product-row');
     let hasResult = false;
 
+    // 如果搜尋框是空的，顯示所有產品
+    if (filter === "") {
+      for (let i = 0; i < rows.length; i++) {
+        rows[i].style.display = "flex";
+      }
+      document.getElementById('noResults').style.display = "none";
+      return;
+    }
+
     for (let i = 0; i < rows.length; i++) {
-      // 取得該列所有文字內容
-      const text = rows[i].textContent || rows[i].innerText;
-      // 比對內容是否包含關鍵字
-      if (text.toUpperCase().indexOf(filter) > -1) {
+      // 2. 抓取該產品列中所有的表格單元格 (td)
+      const cells = rows[i].getElementsByTagName('td');
+      let matchFound = false;
+
+      // 3. 遍歷每一個單元格進行比對
+      for (let j = 0; j < cells.length; j++) {
+        const cellText = cells[j].textContent || cells[j].innerText;
+        
+        // 只要型號、寬、高、深任何一格包含搜尋文字 (例如 800)
+        if (cellText.toUpperCase().indexOf(filter) > -1) {
+          matchFound = true;
+          break; // 找到一個符合就跳出內層迴圈
+        }
+      }
+
+      // 4. 根據比對結果顯示或隱藏該列
+      if (matchFound) {
         rows[i].style.display = "flex";
         hasResult = true;
       } else {
         rows[i].style.display = "none";
       }
     }
-    // 顯示或隱藏「查無結果」提示
+
+    // 5. 顯示或隱藏「查無結果」提示
     document.getElementById('noResults').style.display = hasResult ? "none" : "block";
   }
 </script>
 
 </body>
 </html>
+
