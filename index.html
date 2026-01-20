@@ -14,7 +14,7 @@
 
   body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; }
 
-  /* --- 1. 固定標頭：維持 Logo 與名稱並排 --- */
+  /* --- 1. 固定標頭 --- */
   .brand-header {
     position: sticky; top: 0; z-index: 1100;
     background: white; padding: 12px 25px;
@@ -25,10 +25,10 @@
   .brand-logo { height: 32px; width: auto; flex-shrink: 0; }
   .brand-name { font-size: 1.1rem; font-weight: bold; color: var(--navy-blue); white-space: nowrap; }
 
-  /* --- 2. 搜尋列：只留膠囊外框，移除方形背景底 --- */
+  /* --- 2. 搜尋列 --- */
   .search-container {
     position: sticky; top: 68px; z-index: 1000;
-    background: transparent; /* 移除方形底 */
+    background: transparent;
     padding: 15px 0; margin: 0; width: 100%;
   }
   .search-box { max-width: 1300px; margin: 0 auto; padding: 0 20px; position: relative; }
@@ -40,7 +40,7 @@
   .search-box input:focus { border-color: var(--primary-red); box-shadow: 0 4px 15px rgba(41,114,177,0.2); }
   .search-icon { position: absolute; left: 40px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; fill: #888; z-index: 2; pointer-events: none; }
 
-  /* --- 3. 恢復您原本的產品列表編排 --- */
+  /* --- 3. 產品列表編排 --- */
   .container { max-width: 1300px; margin: 0 auto; padding: 0 20px; }
   .hero-banner {
     background-color: var(--primary-red);
@@ -50,9 +50,9 @@
   .hero-banner h1 { font-size: 3.5rem; margin: 10px 0; }
   .hero-banner p { font-size: 1.5rem; opacity: 0.9; margin: 0; }
 
-  .product-list-wrapper { background: white; border-radius: 8px; overflow: hidden; }
-  .product-row { display: flex; gap: 30px; padding: 30px; border-bottom: 1px solid #eee; } /* 保持原本 Flex 並排 */
-  .product-images { flex: 0 0 450px; display: flex; gap: 15px; } /* 維持圖片寬度 */
+  .product-list-wrapper { background: white; border-radius: 8px; overflow: hidden; margin-bottom: 50px; }
+  .product-row { display: flex; gap: 30px; padding: 30px; border-bottom: 1px solid #eee; }
+  .product-images { flex: 0 0 450px; display: flex; gap: 15px; }
   .img-box { flex: 1; text-align: center; }
   .img-box img { width: 100%; border-radius: 8px; background: #eee; display: block; }
   .img-label { font-size: 0.8rem; color: #777; margin-top: 10px; }
@@ -65,7 +65,6 @@
 
   .no-results { display: none; text-align: center; padding: 60px; color: #999; }
 
-  /* 僅在手機端切換為上下排版 */
   @media (max-width: 1100px) {
     .product-row { flex-direction: column; }
     .product-images { flex: none; width: 100%; }
@@ -96,11 +95,6 @@
     <h1>RF SERIES</h1>
     <p>RECTANGLE FRAMED MIRROR</p>
   </section>
-
-  <div class="product-list-wrapper" id="product-list">
-    </div>
-</div>
-
 
   <div class="product-list-wrapper" id="product-list">
     
@@ -280,18 +274,18 @@
       </div>
     </div>
 
-  </div>
-
-  <div id="noResults" class="no-results">找不到符合搜尋條件的產品 / No results found.</div>
-</div>
-
-<script>
+  </div> <div id="noResults" class="no-results">找不到符合搜尋條件的產品 / No results found.</div>
+</div> <script>
   function filterProducts() {
+    // 取得搜尋關鍵字並轉為大寫，實現不區分大小寫
     const filter = document.getElementById('globalSearch').value.toUpperCase();
     const rows = document.getElementsByClassName('product-row');
     let hasResult = false;
+
     for (let i = 0; i < rows.length; i++) {
+      // 取得該列所有文字內容
       const text = rows[i].textContent || rows[i].innerText;
+      // 比對內容是否包含關鍵字
       if (text.toUpperCase().indexOf(filter) > -1) {
         rows[i].style.display = "flex";
         hasResult = true;
@@ -299,6 +293,7 @@
         rows[i].style.display = "none";
       }
     }
+    // 顯示或隱藏「查無結果」提示
     document.getElementById('noResults').style.display = hasResult ? "none" : "block";
   }
 </script>
