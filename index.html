@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>宇碩光電 YU SHUO | RFMF SERIES 產品搜尋系統</title>
+<style>
+  :root {
+    --primary-red: #2972b1;
+    --navy-blue: #2c3e50;
+    --bg-gray: #f8f9fa;
+    --border-color: #dee2e6;
+  }
+
+  body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; }
+
+  /* --- 1. 固定標頭：維持 Logo 與名稱並排 --- */
+  .brand-header {
+    position: sticky; top: 0; z-index: 1100;
+    background: white; padding: 12px 25px;
+    display: flex; align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+  .logo-flex-wrapper { display: flex; align-items: center; gap: 12px; padding: 6px 18px; border: 1.5px solid #e0e0e0; border-radius: 50px; background-color: #fcfcfc; }
+  .brand-logo { height: 32px; width: auto; flex-shrink: 0; }
+  .brand-name { font-size: 1.1rem; font-weight: bold; color: var(--navy-blue); white-space: nowrap; }
+
+  /* --- 2. 搜尋列：只留膠囊外框，移除方形背景底 --- */
+  .search-container {
+    position: sticky; top: 68px; z-index: 1000;
+    background: transparent; /* 移除方形底 */
+    padding: 15px 0; margin: 0; width: 100%;
+  }
+  .search-box { max-width: 1300px; margin: 0 auto; padding: 0 20px; position: relative; }
+  .search-box input {
+    width: 100%; padding: 12px 25px 12px 55px;
+    background: white; border: 1.5px solid #ddd; border-radius: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-size: 16px; outline: none; transition: 0.3s;
+  }
+  .search-box input:focus { border-color: var(--primary-red); box-shadow: 0 4px 15px rgba(41,114,177,0.2); }
+  .search-icon { position: absolute; left: 40px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; fill: #888; z-index: 2; pointer-events: none; }
+
+  /* --- 3. 恢復您原本的產品列表編排 --- */
+  .container { max-width: 1300px; margin: 0 auto; padding: 0 20px; }
+  .hero-banner {
+    background-color: var(--primary-red);
+    background-image: linear-gradient(rgba(41,114,177,0.8), rgba(41,114,177,0.8));
+    color: white; padding: 30px 40px; border-radius: 8px; margin: 10px 0 30px 0; text-align: left;
+  }
+  .hero-banner h1 { font-size: 3.5rem; margin: 10px 0; }
+  .hero-banner p { font-size: 1.5rem; opacity: 0.9; margin: 0; }
+
+  .product-list-wrapper { background: white; border-radius: 8px; overflow: hidden; }
+  .product-row { display: flex; gap: 30px; padding: 30px; border-bottom: 1px solid #eee; } /* 保持原本 Flex 並排 */
+  .product-images { flex: 0 0 450px; display: flex; gap: 15px; } /* 維持圖片寬度 */
+  .img-box { flex: 1; text-align: center; }
+  .img-box img { width: 100%; border-radius: 8px; background: #eee; display: block; }
+  .img-label { font-size: 0.8rem; color: #777; margin-top: 10px; }
+
+  .product-data { flex: 1; min-width: 0; }
+  .table-container { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.95rem; min-width: 400px; }
+  th { background-color: #f8f9fa; text-align: left; padding: 12px; border-bottom: 2px solid var(--border-color); }
+  td { padding: 12px; border-bottom: 1px solid var(--border-color); }
+
+  .no-results { display: none; text-align: center; padding: 60px; color: #999; }
+
+  /* 僅在手機端切換為上下排版 */
+  @media (max-width: 1100px) {
+    .product-row { flex-direction: column; }
+    .product-images { flex: none; width: 100%; }
+    .brand-name { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="brand-header">
+  <div class="logo-flex-wrapper">
+    <img src="works/logo-38.svg" alt="Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/32x32?text=Y'">
+    <div class="brand-name">宇碩光電 Athene Technology Corp.</div>
+  </div>
+</header>
+
+<div class="search-container">
+  <div class="search-box">
+    <div class="search-wrapper">
+      <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input type="text" id="globalSearch" placeholder="搜尋型號或尺寸 / Search Model or Size..." onkeyup="filterProducts()">
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <section class="hero-banner">
+    <h1>RF SERIES</h1>
+    <p>RECTANGLE FRAMED MIRROR</p>
+  </section>
+
+  <div class="product-list-wrapper" id="product-list">
+    </div>
+</div>
+
+
+  <div class="product-list-wrapper" id="product-list">
+    
+    <div class="product-row">
+      <div class="product-images">
+        <div class="img-box"><img src="works/01-37.png" alt="RFMF-A Full" onerror="this.src='https://loremflickr.com/220/220/mirror?lock=1'"><div class="img-label">全景圖</div></div>
+        <div class="img-box"><img src="works/02-44.png" alt="Detail" onerror="this.src='https://loremflickr.com/220/220/light?lock=2'"><div class="img-label">細節照</div></div>
+      </div>
+      <div class="product-data">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>型號 / Item Code</th><th>寬 / Width</th><th>高 / Height</th><th>深 / Depth</th></tr></thead>
+            <tbody>
+              <tr><td>RFMF8060A</td><td>800</td><td>600</td><td>40</td></tr>
+              <tr><td>RFMF1060A</td><td>1000</td><td>600</td><td>40</td></tr>
+              <tr><td>RFMF1260A</td><td>1200</td><td>600</td><td>40</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-row">
+      <div class="product-images">
+        <div class="img-box"><img src="works/03-43.png" alt="RFMF-B Full" onerror="this.src='https://loremflickr.com/220/220/mirror?lock=3'"><div class="img-label">全景圖</div></div>
+        <div class="img-box"><img src="works/04-45.png" alt="Detail" onerror="this.src='https://loremflickr.com/220/220/frame?lock=4'"><div class="img-label">細節照</div></div>
+      </div>
+      <div class="product-data">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>型號 / Item Code</th><th>寬 / Width</th><th>高 / Height</th><th>深 / Depth</th></tr></thead>
+            <tbody>
+              <tr><td>RFMF5070B</td><td>500</td><td>700</td><td>32</td></tr>
+              <tr><td>RFMF6080B</td><td>600</td><td>800</td><td>32</td></tr>
+              <tr><td>RFMF8080B</td><td>800</td><td>800</td><td>32</td></tr>
+              <tr><td>RFMF1080B</td><td>1000</td><td>800</td><td>32</td></tr>
+              <tr><td>RFMF1280B</td><td>1200</td><td>800</td><td>32</td></tr>
+              <tr><td>RFMF1480B</td><td>1400</td><td>800</td><td>32</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-row">
+      <div class="product-images">
+        <div class="img-box"><img src="works/05-46.png" alt="RFMF-C Full" onerror="this.src='https://loremflickr.com/220/220/mirror?lock=5'"><div class="img-label">全景圖</div></div>
+        <div class="img-box"><img src="works/06-47.png" alt="Detail" onerror="this.src='https://loremflickr.com/220/220/glass?lock=6'"><div class="img-label">細節照</div></div>
+      </div>
+      <div class="product-data">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>型號 / Item Code</th><th>寬 / Width</th><th>高 / Height</th><th>深 / Depth</th></tr></thead>
+            <tbody><tr><td>RFMF5070C</td><td>500</td><td>700</td><td>38</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-row">
+      <div class="product-images">
+        <div class="img-box"><img src="works/07-48.png" alt="RFMF-D Full" onerror="this.src='https://loremflickr.com/220/220/mirror?lock=7'"><div class="img-label">全景圖</div></div>
+        <div class="img-box"><img src="works/08.png" alt="Detail" onerror="this.src='https://loremflickr.com/220/220/corner?lock=8'"><div class="img-label">細節照</div></div>
+      </div>
+      <div class="product-data">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>型號 / Item Code</th><th>寬 / Width</th><th>高 / Height</th><th>深 / Depth</th></tr></thead>
+            <tbody>
+              <tr><td>RFMF5070D</td><td>500</td><td>700</td><td>30</td></tr>
+              <tr><td>RFMF8070D</td><td>800</td><td>700</td><td>30</td></tr>
+              <tr><td>RFMF1070D</td><td>1000</td><td>700</td><td>30</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-row">
+      <div class="product-images">
+        <div class="img-box"><img src="works/09.png" alt="RFMF-E Full" onerror="this.src='https://loremflickr.com/220/220/mirror?lock=9'"><div class="img-label">全景圖</div></div>
+        <div class="img-box"><img src="works/10.png" alt="Detail" onerror="this.src='https://loremflickr.com/220/220/edge?lock=10'"><div class="img-label">細節照</div></div>
+      </div>
+      <div class="product-data">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>型號 / Item Code</th><th>寬 / Width</th><th>高 / Height</th><th>深 / Depth</th></tr></thead>
+            <tbody>
+              <tr><td>RFMF5070E</td><td>500</td><td>700</td><td>30</td></tr>
+              <tr><td>RFMF8070E</td><td>800</td><td>700</td><td>30</td></tr>
+              <tr><td>RFMF1070E</td><td>1000</td><td>700</td><td>30</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-row">
+      <div class="product-images">
+        <div class="img-box"><img src="works/11.png" alt="RFMF-F Full" onerror="this.src='https://loremflickr.com/220/220/mirror?lock=11'"><div class="img-label">全景圖</div></div>
+        <div class="img-box"><img src="works/12.png" alt="Detail" onerror="this.src='https://loremflickr.com/220/220/strip?lock=12'"><div class="img-label">細節照</div></div>
+      </div>
+      <div class="product-data">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>型號 / Item Code</th><th>寬 / Width</th><th>高 / Height</th><th>深 / Depth</th></tr></thead>
+            <tbody>
+              <tr><td>RFMF1170F</td><td>1100</td><td>700</td><td>40</td></tr>
+              <tr><td>RFMF1270F</td><td>1200</td><td>700</td><td>40</td></tr>
+              <tr><td>RFMF1380F</td><td>1300</td><td>800</td><td>40</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-row">
+      <div class="product-images">
+        <div class="img-box"><img src="works/13.png" alt="RFMF-G Full" onerror="this.src='https://loremflickr.com/220/220/mirror?lock=13'"><div class="img-label">全景圖</div></div>
+        <div class="img-box"><img src="works/14.png" alt="Detail" onerror="this.src='https://loremflickr.com/220/220/texture?lock=14'"><div class="img-label">細節照</div></div>
+      </div>
+      <div class="product-data">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>型號 / Item Code</th><th>寬 / Width</th><th>高 / Height</th><th>深 / Depth</th></tr></thead>
+            <tbody>
+              <tr><td>RFMF5070G</td><td>500</td><td>700</td><td>40</td></tr>
+              <tr><td>RFMF6070G</td><td>600</td><td>700</td><td>40</td></tr>
+              <tr><td>RFMF8070G</td><td>800</td><td>700</td><td>40</td></tr>
+              <tr><td>RFMF1070G</td><td>1000</td><td>700</td><td>40</td></tr>
+              <tr><td>RFMF1270G</td><td>1200</td><td>700</td><td>40</td></tr>
+              <tr><td>RFMF1470G</td><td>1400</td><td>700</td><td>40</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-row">
+      <div class="product-images">
+        <div class="img-box"><img src="works/15.png" alt="RFMF-H Full" onerror="this.src='https://loremflickr.com/220/220/mirror?lock=15'"><div class="img-label">全景圖</div></div>
+        <div class="img-box"><img src="works/16.png" alt="Detail" onerror="this.src='https://loremflickr.com/220/220/storage?lock=16'"><div class="img-label">細節照</div></div>
+      </div>
+      <div class="product-data">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>型號 / Item Code</th><th>寬 / Width</th><th>高 / Height</th><th>深 / Depth</th></tr></thead>
+            <tbody>
+              <tr><td>RFMF6080H</td><td>600</td><td>800</td><td>112</td></tr>
+              <tr><td>RFMF8080H</td><td>800</td><td>800</td><td>112</td></tr>
+              <tr><td>RFMF1080H</td><td>1000</td><td>800</td><td>112</td></tr>
+              <tr><td>RFMF1280H</td><td>1200</td><td>800</td><td>112</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-row">
+      <div class="product-images">
+        <div class="img-box"><img src="works/17.png" alt="RFMF-I Full" onerror="this.src='https://loremflickr.com/220/220/mirror?lock=17'"><div class="img-label">全景圖</div></div>
+        <div class="img-box"><img src="works/18.png" alt="Detail" onerror="this.src='https://loremflickr.com/220/220/profile?lock=18'"><div class="img-label">細節照</div></div>
+      </div>
+      <div class="product-data">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>型號 / Item Code</th><th>寬 / Width</th><th>高 / Height</th><th>深 / Depth</th></tr></thead>
+            <tbody>
+              <tr><td>RFMF5070I</td><td>500</td><td>700</td><td>62</td></tr>
+              <tr><td>RFMF6080I</td><td>600</td><td>800</td><td>62</td></tr>
+              <tr><td>RFMF8080I</td><td>800</td><td>800</td><td>62</td></tr>
+              <tr><td>RFMF1080I</td><td>1000</td><td>800</td><td>62</td></tr>
+              <tr><td>RFMF1280I</td><td>1200</td><td>800</td><td>62</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="noResults" class="no-results">找不到符合搜尋條件的產品 / No results found.</div>
+</div>
+
+<script>
+  function filterProducts() {
+    const filter = document.getElementById('globalSearch').value.toUpperCase();
+    const rows = document.getElementsByClassName('product-row');
+    let hasResult = false;
+    for (let i = 0; i < rows.length; i++) {
+      const text = rows[i].textContent || rows[i].innerText;
+      if (text.toUpperCase().indexOf(filter) > -1) {
+        rows[i].style.display = "flex";
+        hasResult = true;
+      } else {
+        rows[i].style.display = "none";
+      }
+    }
+    document.getElementById('noResults').style.display = hasResult ? "none" : "block";
+  }
+</script>
+
+</body>
+</html>
